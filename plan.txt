@@ -1,0 +1,61 @@
+
+First pass:
+1. Do not implement Merkle trees.
+2. Make blocks unlimited size. Later we will enforce a fixed limit.
+3. Use int32 for one "coin." Not floats yet.
+4. No dynamic hash rate.
+5. Constant mining reward. No limit to the number of mineable go-coins.
+6. Keep everything in memory. Don't worry about file formats or saving to disk.
+
+- Use sha256 package for hashing
+- Use crypto/ecdsa for signatures
+
+- Miner must include a coinbase that grants someone 10 (mining reward) plus tips
+
+# 1 block <-> 1 file
+Block struct {
+    version int32
+
+    id int32
+    prevHash []byte
+    nonce int32
+    timestamp time.Time
+    transactions []Transaction
+}
+
+TransactionBody struct {
+    inputTransactionHashes [][]byte
+    owner PublicKey
+    nextOwner PublicKey
+    change int32
+    tip int32
+}
+
+Transaction struct {
+    body TransactionBody
+    hash []byte
+    // signature of hash
+    ownerSignatureR *big.Int
+    ownerSignatureS *big.Int
+}
+
+Chain struct {
+    blocks Block[]
+}
+
+Node struct {
+    nodes []string // my knowledge of other nodes
+
+    // only public facing API
+    Chain()
+}
+
+// on a for loop in the background, the miner will call the Chain() endpoint of other known Miners.
+//  If the Chain is longer than their current Chain, it will replace its own chain.
+mine(nextBlock Block) error
+// verify the nextBlock
+
+KeyPair struct {
+    pub *PrivateKey
+    priv *PrivateKey
+}
